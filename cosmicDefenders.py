@@ -1,18 +1,27 @@
 import curses
+<<<<<<< HEAD
 import threading
 import time
 
 player_x = 0
+=======
+>>>>>>> 03dac5611e57c14006d84dd2f89f4524eb0bc251
 
 def main(stdscr):
     curses.noecho()
     curses.cbreak()
     stdscr.keypad(True)
+<<<<<<< HEAD
     curses.curs_set(0)
     # Get the height and width of the screen
     screen_height, screen_width = stdscr.getmaxyx()
     global player_x
     player_x = screen_width // 2 - 10
+=======
+    
+    # Get the height and width of the screen
+    screen_height, screen_width = stdscr.getmaxyx()
+>>>>>>> 03dac5611e57c14006d84dd2f89f4524eb0bc251
     
     # Define the text to display
     text = [
@@ -39,8 +48,13 @@ def main(stdscr):
     # Display the text in the window
     for i, line in enumerate(text):
         if i < screen_height:  # Ensure we don't write outside the window height
+<<<<<<< HEAD
             win.addstr(i, 0, line[:screen_width])  # Ensure we don't write outside the window width
             stdscr.refresh()
+=======
+          win.addstr(i, 0, line[:screen_width])  # Ensure we don't write outside the window width
+          stdscr.refresh()
+>>>>>>> 03dac5611e57c14006d84dd2f89f4524eb0bc251
     
     win.refresh()
     
@@ -57,7 +71,11 @@ def main(stdscr):
             stdscr.keypad(False)
             curses.echo()
             curses.endwin()
+<<<<<<< HEAD
             return
+=======
+            break
+>>>>>>> 03dac5611e57c14006d84dd2f89f4524eb0bc251
         if key == 10:  # Enter key
             stdscr.addstr(screen_height - 1, 0, "Game Starting...")
             stdscr.refresh()
@@ -67,6 +85,7 @@ def main(stdscr):
             break
     
     # Create new windows for enemies and player
+<<<<<<< HEAD
     winEnemies = curses.newwin(25, screen_width, 0, 0)
     winEnemies.refresh()
 
@@ -156,3 +175,25 @@ def main(stdscr):
     player_thread.join()
 
 curses.wrapper(main)
+=======
+    winEnemies = curses.newwin(10, screen_width, 0, 0)
+    winEnemies.refresh()
+    winEnemies.getch()
+
+    winPlayer = curses.newwin(10, screen_width, 11, 0)
+    winPlayer.refresh()
+    evilBattleShip = [
+        r"     ___ ",
+        r" ___/   \___",
+        r"/   '---'   \ ",
+        r"'--_______--' ",
+    ]
+    for i, line in enumerate(evilBattleShip):
+        winEnemies.addstr(i, 0, line)
+        stdscr.refresh()
+    winEnemies.refresh()
+    winEnemies.addstr(0, screen_height-1, "New Enemy")
+    winEnemies.refresh()
+
+curses.wrapper(main)
+>>>>>>> 03dac5611e57c14006d84dd2f89f4524eb0bc251
