@@ -1,6 +1,7 @@
 import curses
 import threading
 import time
+import random
 
 player_x = 0
 
@@ -13,6 +14,7 @@ def main(stdscr):
     screen_height, screen_width = stdscr.getmaxyx()
     global player_x
     player_x = screen_width // 2 - 10
+    xs = []
     
     # Define the text to display
     text = [
@@ -23,14 +25,14 @@ def main(stdscr):
         r"       \|____|\  \ \  \___|\ \  \ \  \ \  \____\ \  \_|\ \                   ",
         r"         ____\_\  \ \__\    \ \__\ \__\ \_______\ \_______\                  ",
         r"        |\_________\|__|     \|__|\|__|\|_______|\|_______|                  ",
-        r" ___  ________ \|____________ ________  ________  _______   ________  ________      ",
+        r" ___  ________   ____________ ________  ________  _______   ________  ________      ",
         r"|\  \|\   ___  \|\  \    /  /|\   __  \|\   ___ \|\  ___ \ |\   __  \|\   ____\     ",
         r"\ \  \ \  \\ \  \ \  \  /  / \ \  \|\  \ \  \_|\ \ \   __/|\ \  \|\  \ \  \___|_    ",
         r" \ \  \ \  \\ \  \ \  \/  / / \ \   __  \ \  \ \\ \ \  \_|/_\ \   _  _\ \_____  \   ",
         r"  \ \  \ \  \\ \  \ \    / /   \ \  \ \  \ \  \_\\ \ \  \_|\ \ \  \\  \\|____|\  \  ",
         r"   \ \__\ \__\\ \__\ \__/ /     \ \__\ \__\ \_______\ \_______\ \__\\ _\ ____\_\  \ ",
-        r"    \|__|\|__| \|__|\|__|/       \|__|\|__|\|_______|\|_______|\|__|\|__|\_________\\",
-        r"                                                                        \|_________\\"
+        r"    \|__|\|__| \|__|\|__|/       \|__|\|__|\|_______|\|_______|\|__|\|__|\_________\ ",
+        r"                                                                        \|_________|",
     ]
     
     # Create a new window
@@ -74,6 +76,7 @@ def main(stdscr):
     winPlayer.refresh()
     
     def drawSingleBattleship(winEnemies, battleships, y):
+        
         evilBattleShip = [
             r"     ____ ",
             r" ___/    \___",
@@ -81,17 +84,16 @@ def main(stdscr):
             r"'---______---' ",
         ]
         for i, line in enumerate(evilBattleShip):
-            x = screen_width // (battleships + 1) - (7 * battleships)
+            global xs
+            x = screen_width // 10 * battleships
+            xs.append(x)
             winEnemies.addstr(i + y, x, line)
         winEnemies.refresh()
     
     def drawBattleship(winEnemies):
-        for i in range(0, 23):
-            winEnemies.clear()
-            drawSingleBattleship(winEnemies, 1, i)
-            winEnemies.refresh()
-            time.sleep(.25)
-        winEnemies.getch()
+        for i in range(0, 10):
+            drawSingleBattleship(winEnemies, i, 1)
+
 
     # Create and start the thread for battleship animation
     battleship_thread = threading.Thread(target=drawBattleship, args=(winEnemies,))
@@ -105,8 +107,8 @@ def main(stdscr):
             r"     /****\ ",     
             r"  __/------\__ ",  
             r" /  |      |  \ ", 
-            r"/---|______|---\ ",
-            r"    /  ||  \ ",
+            r"/___|______|___\ ",
+            r"   \   ||   / ",
             r"    \__||__/ "    
         ]
         for i, line in enumerate(player):
@@ -127,29 +129,35 @@ def main(stdscr):
                 winPlayer.clear()
                 player_x = min(screen_width - 10, player_x + 1)  # Move right, but don't go out of bounds
                 drawPlayer(winPlayer)
-            elif key == ord(' '):  # Space key to fire
-                fire_shot(winEnemies)
+            # elif key == ord(' '):  # Space key to fire
+            #     fire_shot(winEnemies)
             elif key == 27:  # ESC key to exit
                 break
             time.sleep(.01)  # Small delay to reduce CPU usage
 
-    def one_shot(winEnemies, x):
+    def one_shot(winEnemies):
         bullet = '|'
-        for i in range(20, 0, -1):
+        global xs
+        for i in range(1, 20, -1):
+            x = random.randint(0,10)
+            x = xs[x] + 4
             winEnemies.addstr(i, x, bullet)
             winEnemies.refresh()
-            time.sleep(.25)
+            time.sleep(.1)
 
     def fire_shot(winEnemies):
         global player_x
-        one_shot_thread = threading.Thread(target=one_shot, args=(winEnemies, player_x + 7))
-        one_shot_thread.start()
+        while True:
+            one_shot(winEnemies)
 
 
     # Create and start the thread for player movement
     player_thread = threading.Thread(target=playerLoop, args=(winPlayer,))
     player_thread.start()
 
+    # Create and start the thread for firing shots
+    shot_thread = threading.Thread(target=fire_shot, args=(winEnemies,))
+    shot_thread.start()
 
     # Wait for both threads to finish
     battleship_thread.join()
