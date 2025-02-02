@@ -16,7 +16,7 @@ def main(stdscr):
     
     # Set up player position
     player_x = (screen_width // 2 - 8) // 5 * 5
-    space = 20  # Default width of the landing strip
+    space = 30  # Default width of the landing strip
 
     # Game loop settings
     stdscr.nodelay(False)  # Wait for user input on menus
@@ -138,10 +138,10 @@ def main(stdscr):
         if strip_y >= screen_height - 10:
             strip_y = 5
             strip_x = random.randint(1, (screen_width - space - 15) // 5) * 5
-        if strip_y == screen_height - 10:
             if player_x < strip_x or player_x > strip_x + space:
                 show_message(stdscr, "You crashed! Press ENTER to restart or ESC to exit")
                 while True:
+              
                     key = stdscr.getch()
                     if key == 27:  # ESC key
                         return 
@@ -152,9 +152,9 @@ def main(stdscr):
 
         key = stdscr.getch()
         if key == curses.KEY_LEFT:
-            player_x = max(5, player_x - 5)  # Move left
+            player_x = max(5, player_x - 1)  # Move left
         elif key == curses.KEY_RIGHT:
-            player_x = min(screen_width - 20, player_x + 5)  # Move right
+            player_x = min(screen_width - 20, player_x + 1)  # Move right
         elif key == 27 or key == ord('q'):  # ESC or 'q' key to quit
             break
 
