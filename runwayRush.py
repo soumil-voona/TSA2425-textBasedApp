@@ -1,7 +1,6 @@
 import curses
 import time
 import random
-import threading
 
 def main(stdscr):
     # Initialize curses
@@ -10,7 +9,8 @@ def main(stdscr):
     stdscr.keypad(True)
     curses.curs_set(0)
     score = 0
-    
+    reloadSpeed = 0.2
+    movement = 5
     # Get screen size
     screen_height, screen_width = stdscr.getmaxyx()
     
@@ -99,6 +99,11 @@ def main(stdscr):
             win.addstr(screen_height // 2 - 4 + i, screen_width // 2 - len(line) // 2, line)
         win.refresh()
 
+    def show_score(win, score):
+        """ Display the score at the top left corner of the screen. """
+        win.addstr(0, 0, "Score: {}".format(str(score).zfill(3)))
+        win.refresh()
+
     # Show ASCII art first
     show_ascii_art(stdscr)
 
@@ -125,36 +130,36 @@ def main(stdscr):
     strip_y = 5  # Initial strip position
     stdscr.nodelay(True)  # Enable continuous movement
 
-    def show_score(win, score):
-        """ Display the score at the top left corner of the screen. """
-        win.addstr(1, 1, "Score: {}".format(str(score).zfill(3)))
-        win.refresh()
-
     while True:
         stdscr.clear()
 
         # Move the landing strip downward
         strip_y += 1
         if strip_y >= screen_height - 10:
-            strip_y = 5
-            strip_x = random.randint(1, (screen_width - space - 15) // 5) * 5
             if player_x < strip_x or player_x > strip_x + space:
                 show_message(stdscr, "You crashed! Press ENTER to restart or ESC to exit")
                 while True:
-              
                     key = stdscr.getch()
                     if key == 27:  # ESC key
                         return 
                     if key == 10:  
                         break
+                score = 0  # Reset score after crash
+                reloadSpeed = 0.2
+                movement = 5
             elif player_x >= strip_x and player_x <= strip_x + space:
                 score += 1
+                reloadSpeed -= .01
+                strip_y = 5
+                strip_x = random.randint(1, (screen_width - space - 15) // 5) * 5
+                movement += 1
+                space = random.randint(20, 40)
 
         key = stdscr.getch()
         if key == curses.KEY_LEFT:
-            player_x = max(5, player_x - 1)  # Move left
+            player_x = max(5, player_x - movement)  # Move left
         elif key == curses.KEY_RIGHT:
-            player_x = min(screen_width - 20, player_x + 1)  # Move right
+            player_x = min(screen_width - 20, player_x + movement)  # Move right
         elif key == 27 or key == ord('q'):  # ESC or 'q' key to quit
             break
 
@@ -164,7 +169,7 @@ def main(stdscr):
         show_score(stdscr, score)
 
         stdscr.refresh()
-        time.sleep(0.2)  # Control game speed
+        time.sleep(reloadSpeed)  # Control game speed
 
     # Cleanup and exit
     curses.nocbreak()
